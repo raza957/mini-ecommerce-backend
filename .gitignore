@@ -1,0 +1,72 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Coverage directory
+coverage/
+
+# Build files
+dist/
+build/
+
+# Debug files
+.debug/
+
+# Local development files
+*.local
+
+# Database files
+*.sqlite
+*.sql
+dump.rdb
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+.env.local
+
+# macOS files
+._*
+
+# Windows files
+[Tt]humbs.db
+Desktop.ini
