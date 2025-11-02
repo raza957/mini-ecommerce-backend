@@ -3,107 +3,79 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-const authRoutes = require('./routes/auth');
-const productRoutes = require('./routes/products');
-const categoryRoutes = require('./routes/category');
-const cartRoutes = require('./routes/cart');
-const orderRoutes = require('./routes/orders');
-
 const app = express();
 
-
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://venerable-torte-f9f275.netlify.app/', 
-  'https://*.netlify.app'
-];
-
+// ✅ Simple CORS - ALL origins allow karein
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list or ends with netlify.app
-    if (allowedOrigins.some(allowedOrigin => {
-      return origin === allowedOrigin || origin.endsWith('.netlify.app');
-    })) {
-      return callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin);
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  origin: true,
+  credentials: true
 }));
 
 // Middleware
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-
-// Home route for API check
-app.get('/api', (req, res) => {
-  res.json({ message: 'Mini Ecommerce API is running!' });
-});
-
-// Health check route - ADD THIS
+// ✅ Simple health route - ye add karein
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    message: 'Backend is running!',
+    timestamp: new Date().toISOString()
   });
 });
 
-// Serve React frontend in production
-if (process.env.NODE_ENV === 'production') {
-  // Try multiple possible build locations
-  const possibleBuildPaths = [
-    path.join(__dirname, '../frontend/build'),
-    path.join(__dirname, '../frontend-build'),
-    path.join(__dirname, '../../frontend/build'),
-    path.join(__dirname, './frontend/build')
-  ];
+// ✅ Basic routes - temporarily without MongoDB
+app.get('/api', (req, res) => {
+  res.json({ message: 'Ecommerce API is running!' });
+});
 
-  let buildPath = null;
-  for (const buildPathOption of possibleBuildPaths) {
-    if (require('fs').existsSync(buildPathOption)) {
-      buildPath = buildPathOption;
-      console.log(`Found frontend build at: ${buildPath}`);
-      break;
+// ✅ Mock auth routes for testing
+app.post('/api/auth/login', (req, res) => {
+  res.json({
+    token: 'mock-jwt-token-for-testing',
+    user: {
+      id: 1,
+      name: 'Test User',
+      email: req.body.email
     }
-  }
+  });
+});
 
-  if (buildPath) {
-    app.use(express.static(buildPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(buildPath, 'index.html'));
-    });
-  } else {
-    console.log('Frontend build not found. Serving API only.');
-    app.get('/', (req, res) => {
-      res.json({ 
-        message: 'API is running. Frontend build not found.',
-        api_endpoints: ['/api', '/api/auth', '/api/products', '/api/categories', '/api/cart', '/api/orders']
-      });
-    });
-  }
-}
+app.post('/api/auth/register', (req, res) => {
+  res.json({
+    token: 'mock-jwt-token-for-testing',
+    user: {
+      id: 1,
+      name: req.body.name,
+      email: req.body.email
+    }
+  });
+});
+
+// ✅ Mock products route
+app.get('/api/products', (req, res) => {
+  res.json([
+    {
+      id: 1,
+      name: 'Sample Product 1',
+      price: 99.99,
+      description: 'This is a sample product for testing'
+    },
+    {
+      id: 2, 
+      name: 'Sample Product 2',
+      price: 149.99,
+      description: 'Another sample product for testing'
+    }
+  ]);
+});
+
+// Serve static files (if any)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`CORS enabled for: ${allowedOrigins.join(', ')}`);
+  console.log(`✅ Health check available at: /api/health`);
+  console.log(`✅ API available at: /api`);
 });
